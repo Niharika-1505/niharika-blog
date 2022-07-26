@@ -178,7 +178,8 @@ def about():
 
 @app.route("/contact.html", methods=["GET", "POST"])
 def contact():
-    # display a different page after a message was submitted
+    # return render_template("contact.html", current_user=current_user)
+    # # display a different page after a message was submitted
     if request.method == "POST":
         message = {
             "name": request.form["name"],

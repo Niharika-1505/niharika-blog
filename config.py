@@ -1,4 +1,5 @@
 import os
+import re
 
 from dotenv import load_dotenv
 
@@ -14,5 +15,8 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # Heroku PostgreSQL URL
 # if DATABASE_URL variable is not set, it will use the DB file instead
-DATABASE_URL = os.environ.get("DATABASE_URL",  "sqlite:///blog.db")
+uri = os.environ.get("DATABASE_URL")  # or other relevant config var
 
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+DATABASE_URL = (uri, "sqlite:///blog.db")
