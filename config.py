@@ -17,6 +17,6 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # if DATABASE_URL variable is not set, it will use the DB file instead
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///blog.db")  # or other relevant config var
 
-# if uri.startswith("postgres://"):
-#     uri = uri.replace("postgres://", "postgresql://", 1)
-# DATABASE_URL = (uri, "sqlite:///blog.db")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
