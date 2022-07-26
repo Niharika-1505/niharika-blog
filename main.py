@@ -4,8 +4,9 @@
 # credentials for users xyz@gmail.com / xyz@123
 
 import datetime as dt
-# import os
-# import smtplib
+import os
+import smtplib
+import os
 from functools import wraps
 
 from flask import Flask, render_template, request, redirect, flash, abort
@@ -17,18 +18,18 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_gravatar import Gravatar
 
-# import config
+import config
 import forms
 
-# # notification settings, unchanged from Day 60
-# SUBJECT_TEXT = "A Message from the Blog Capstone Project"
-# RECEIVER_NAME = "Niharika Gadde"
-# OWN_EMAIL = config.SMTP_LOGIN
-# OWN_PASSWORD = config.SMTP_PASS
+# notification settings, unchanged from Day 60
+SUBJECT_TEXT = "A Message from the Blog Capstone Project"
+RECEIVER_NAME = "Niharika Gadde"
+OWN_EMAIL = config.SMTP_LOGIN
+OWN_PASSWORD = config.SMTP_PASS
 
 app = Flask(__name__)
 # app.config["SECRET_KEY"] = config.SECRET_KEY
-app.config["SECRET_KEY"] = "ThisIsASecretKey"
+app.config["SECRET_KEY"] = config.SECRET_KEY
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
@@ -37,7 +38,7 @@ gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=Fa
                     use_ssl=False, base_url=None)
 
 # DB setup
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///blog.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = config.DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
@@ -100,27 +101,27 @@ def get_current_date():
     return dt.datetime.now().strftime("%B %d, %Y")
 
 
-# def send_email(message):
-#     """Takes a DICT with the details and sends an email to the defined address."""
-#     # format the email
-#     sender = f"{message['name']} <{message['email']}>"
-#     receiver = f"{RECEIVER_NAME} <{OWN_EMAIL}>"
-#     body = f"Subject: {SUBJECT_TEXT}\nTo: {receiver}\nFrom: {sender}\n\n" \
-#            f"{message['message']}\n\n" \
-#            f"From:\nName: {message['name']}\nEmail: {message['email']}\nPhone: {message['phone']}"
-#     try:
-#         with smtplib.SMTP("smtp.gmail.com") as connection:
-#             connection.starttls()
-#             connection.login(OWN_EMAIL, OWN_PASSWORD)
-#             connection.sendmail(sender, receiver, body)
-#     except smtplib.SMTPServerDisconnected as ex:
-#         print(ex)
-#         print("Make sure the SMTP_LOGIN and SMTP_PASS credentials have been set correctly in config.py.")
-#         return False
-#     else:
-#         # just to have some feedback
-#         print(f"A message was sent to {OWN_EMAIL}.")
-#         return True
+def send_email(message):
+    """Takes a DICT with the details and sends an email to the defined address."""
+    # format the email
+    sender = f"{message['name']} <{message['email']}>"
+    receiver = f"{RECEIVER_NAME} <{OWN_EMAIL}>"
+    body = f"Subject: {SUBJECT_TEXT}\nTo: {receiver}\nFrom: {sender}\n\n" \
+           f"{message['message']}\n\n" \
+           f"From:\nName: {message['name']}\nEmail: {message['email']}\nPhone: {message['phone']}"
+    try:
+        with smtplib.SMTP("smtp.gmail.com") as connection:
+            connection.starttls()
+            connection.login(OWN_EMAIL, OWN_PASSWORD)
+            connection.sendmail(sender, receiver, body)
+    except smtplib.SMTPServerDisconnected as ex:
+        print(ex)
+        print("Make sure the SMTP_LOGIN and SMTP_PASS credentials have been set correctly in config.py.")
+        return False
+    else:
+        # just to have some feedback
+        print(f"A message was sent to {OWN_EMAIL}.")
+        return True
 
 
 # admin_only decorator
@@ -133,6 +134,7 @@ def admin_only(func):
             return abort(403)
         # if admin, continue to the requested route
         return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -179,26 +181,26 @@ def about():
 
 @app.route("/contact.html", methods=["GET", "POST"])
 def contact():
-    return render_template("contact.html", current_user=current_user)
+    # return render_template("contact.html", current_user=current_user)
     # # display a different page after a message was submitted
-    # if request.method == "POST":
-    #     message = {
-    #         "name": request.form["name"],
-    #         "email": request.form["email"],
-    #         "phone": request.form["phone"],
-    #         "message": request.form["message"]
-    #     }
-    #     # try to send the message
-    #     if send_email(message):
-    #         status = "Success!"
-    #         text = "Your message has been sent."
-    #     else:
-    #         status = "Something went wrong."
-    #         text = "The message could not be sent."
-    #     # display the status page
-    #     return render_template("message.html", status=status, text=text, year=get_current_year(),
-    #                            logged_in=current_user.is_authenticated)
-    # return render_template("contact.html", year=get_current_year(), logged_in=current_user.is_authenticated)
+    if request.method == "POST":
+        message = {
+            "name": request.form["name"],
+            "email": request.form["email"],
+            "phone": request.form["phone"],
+            "message": request.form["message"]
+        }
+        # try to send the message
+        if send_email(message):
+            status = "Success!"
+            text = "Your message has been sent."
+        else:
+            status = "Something went wrong."
+            text = "The message could not be sent."
+        # display the status page
+        return render_template("message.html", status=status, text=text, year=get_current_year(),
+                               logged_in=current_user.is_authenticated)
+    return render_template("contact.html", year=get_current_year(), logged_in=current_user.is_authenticated)
 
 
 # using the new decorator
