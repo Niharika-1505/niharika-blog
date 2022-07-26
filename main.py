@@ -4,9 +4,7 @@
 # credentials for users xyz@gmail.com / xyz@123
 
 import datetime as dt
-import os
 import smtplib
-import os
 from functools import wraps
 
 from flask import Flask, render_template, request, redirect, flash, abort
@@ -22,13 +20,12 @@ import config
 import forms
 
 # notification settings, unchanged from Day 60
-SUBJECT_TEXT = "A Message from the Blog Capstone Project"
+SUBJECT_TEXT = "A Message from the Niharika's Blog"
 RECEIVER_NAME = "Niharika Gadde"
 OWN_EMAIL = config.SMTP_LOGIN
 OWN_PASSWORD = config.SMTP_PASS
 
 app = Flask(__name__)
-# app.config["SECRET_KEY"] = config.SECRET_KEY
 app.config["SECRET_KEY"] = config.SECRET_KEY
 ckeditor = CKEditor(app)
 Bootstrap(app)
@@ -181,8 +178,7 @@ def about():
 
 @app.route("/contact.html", methods=["GET", "POST"])
 def contact():
-    # return render_template("contact.html", current_user=current_user)
-    # # display a different page after a message was submitted
+    # display a different page after a message was submitted
     if request.method == "POST":
         message = {
             "name": request.form["name"],
